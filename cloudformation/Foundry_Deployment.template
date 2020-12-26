@@ -7,7 +7,7 @@
 					"Label": {
 						"default": "Base Configuration"
 					},
-					"Parameters": ["AdminUserName", "AdminUserPW", "FoundryDownloadLink", "InstanceKey", "InstanceType", "OptionalFixedIP", "S3BucketName", "UseExistingBucket", "TakeSnapshots", "SnapshotFrequency"]
+					"Parameters": ["FoundryDownloadLink", "InstanceKey", "InstanceType", "OptionalFixedIP", "S3BucketName", "UseExistingBucket", "TakeSnapshots", "SnapshotFrequency"]
 				},
 				{
 					"Label": {
@@ -81,17 +81,6 @@
 			"Type": "AWS::EC2::KeyPair::KeyName",
 			"Description": "An SSH keypair used to access your instance. This MUST be created manually.",
 			"ConstraintDescription": "This MUST be created manually https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair"
-		},
-		"AdminUserPW": {
-			"Type": "String",
-			"NoEcho": "true",
-			"Description": "Password for admin user. Have a minimum of 8 characters and a maximum of 128 characters include a minimum of three of the following mix of character types: uppercase, lowercase, numbers, and symbols.",
-			"ConstraintDescription": "Have a minimum of 8 characters and a maximum of 128 characters include a minimum of three of the following mix of character types: uppercase, lowercase, numbers, and symbols."
-		},
-		"AdminUserName": {
-			"Type": "String",
-			"Default": "AdminUser",
-			"Description": "Username to be used for the Admin user."
 		},
 		"InstanceType": {
 			"Description": "WebServer EC2 instance type",
@@ -377,7 +366,7 @@
 				},
 				"AccessControl": "PublicRead",
 				"BucketName": {
-					"Ref": "S3BucketName"
+					"Sub": "${S3BucketName}-${AWS::AccountId}-${AWS::Region}"
 				}
 			}
 		},
@@ -411,22 +400,6 @@
 				}
 			}
 		},
-		"AdminUser": {
-			"Type": "AWS::IAM::User",
-			"Properties": {
-				"LoginProfile": {
-					"Password": {
-						"Ref": "AdminUserPW"
-					}
-				},
-				"ManagedPolicyArns": [
-					"arn:aws:iam::aws:policy/AdministratorAccess"
-				],
-				"UserName": {
-					"Ref": "AdminUserName"
-				}
-			}
-		},
 		"UserKey": {
 			"Type": "AWS::IAM::AccessKey",
 			"Properties": {
@@ -444,7 +417,7 @@
 					"PolicyDocument": {
 						"Version": "2012-10-17",
 						"Statement": [{
-								"Sid": "VisualEditor0",
+								"Sid": "ManageObjects",
 								"Effect": "Allow",
 								"Action": [
 									"s3:PutObject",
@@ -453,33 +426,13 @@
 									"s3:DeleteObject",
 									"s3:PutObjectAcl"
 								],
-								"Resource": [{
-										"Fn::Join": [
-											"",
-											[
-												"arn:aws:s3:::",
-												{
-													"Ref": "S3BucketName"
-												},
-												"/*"
-											]
-										]
-									},
-									{
-										"Fn::Join": [
-											"",
-											[
-												"arn:aws:s3:::",
-												{
-													"Ref": "S3BucketName"
-												}
-											]
-										]
-									}
+								"Resource": [
+									{ "Fn::Sub": "arn:aws:s3:::${S3BucketName}-${AWS::AccountId}-${AWS::Region}/*" },
+									{ "Fn::Sub": "arn:aws:s3:::${S3BucketName}-${AWS::AccountId}-${AWS::Region}" }
 								]
 							},
 							{
-								"Sid": "VisualEditor1",
+								"Sid": "ListBuckets",
 								"Effect": "Allow",
 								"Action": "s3:ListAllMyBuckets",
 								"Resource": "*"
