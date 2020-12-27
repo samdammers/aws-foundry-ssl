@@ -1,2 +1,5 @@
 *.pem
 .envrc
+.idea/
+handler.zip
+*.out.*
