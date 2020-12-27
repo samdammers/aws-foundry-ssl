@@ -1,9 +1,10 @@
 """This script updates a bucket policy to append IP or reset them"""
 import json
+import os
 
 import boto3
 
-BUCKET_NAME = "foundry-vtt-server-dammers"
+BUCKET_NAME = os.getenv("S3_BUCKET")
 
 
 def reset_ip_list(s3_client):

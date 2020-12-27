@@ -43,6 +43,9 @@ Resources:
       Runtime: python3.7
       Timeout: 120
       CodeUri: ../handler.zip
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3BucketName
       Events:
         CheckLogGroupsScheduledEvent:
           Type: Schedule
