@@ -64,20 +64,25 @@
 	"Parameters": {
 		"FoundryDownloadLink": {
 			"Type": "String",
-			"Description": "Where to download Foundry. Can be a Patreon link, a publicly shared Google Drive link, or a custom hosted link. Timed Foundry links are possible but not recommended.",
-			"AllowedPattern" : ".+"
+			"Description": "Where to download Foundry. Can be a Patreon link, a publicly shared Google Drive link, an S3 link 's3://<bucket-name>/file' or a custom hosted link. Timed Foundry links are possible but not recommended.",
+			"AllowedPattern": ".+"
+		},
+		"FoundryDownloadBucket": {
+			"Type": "String",
+			"Description": "If hosting artifact in a bucket, provide the bucket name here for permissions to be granted",
+			"AllowedPattern": "(?=^.{3,63}$)(^[a-z0-9]+[a-z0-9\\-]+[a-z0-9]+$)"
 		},
 		"AdminUserName": {
 			"Type": "String",
 			"Description": "Username for the Foundry IAM user.",
-			"AllowedPattern" : "[A-Za-z]+",
+			"AllowedPattern": "[A-Za-z]+",
 			"Default": "FoundryAdmin"
 		},
 		"AdminUserPW": {
 			"Type": "String",
 			"Description": "Minimum of 8 characters, maximum of 128 characters. Includes at least one of each: uppercase letter, lowercase letter, number, symbol.",
 			"ConstraintDescription": "8 - 128 characters long. Includes at least one of each: uppercase letter, lowercase letter, number, symbol.",
-			"AllowedPattern" : ".{8,128}",
+			"AllowedPattern": ".{8,128}",
 			"NoEcho": "True"
 		},
 		"FullyQualifiedDomainName": {
@@ -260,14 +265,6 @@
 				"True"
 			]
 		},
-		"CreateWebServer": {
-			"Fn::Equals": [
-				{
-					"Ref": "WebServerBool"
-				},
-				"True"
-			]
-		},
 		"Route53WebServer": {
 			"Fn::And": [
 				{
@@ -300,22 +297,6 @@
 					"Ref": "SnapshotFrequency"
 				},
 				"Daily"
-			]
-		},
-		"WeeklyCheck": {
-			"Fn::Equals": [
-				{
-					"Ref": "SnapshotFrequency"
-				},
-				"Weekly"
-			]
-		},
-		"TakeSnapshots": {
-			"Fn::Equals": [
-				{
-					"Ref": "TakeSnapshots"
-				},
-				"True"
 			]
 		}
 	},
@@ -525,10 +506,10 @@
 					]
 				},
 				"PublicAccessBlockConfiguration": {
-					"BlockPublicAcls" : false,
-					"BlockPublicPolicy" : false,
-					"IgnorePublicAcls" : false,
-					"RestrictPublicBuckets" : false
+					"BlockPublicAcls": false,
+					"BlockPublicPolicy": false,
+					"IgnorePublicAcls": false,
+					"RestrictPublicBuckets": false
 				},
 				"CorsConfiguration": {
 					"CorsRules": [
@@ -767,10 +748,10 @@
 				}
 			},
 			"CreationPolicy": {
-                "ResourceSignal": {
-                    "Timeout": "PT25M"
-                }
-            },
+				"ResourceSignal": {
+					"Timeout": "PT25M"
+				}
+			},
 			"Properties": {
 				"KeyName": {
 					"Ref": "InstanceKey"
@@ -833,8 +814,7 @@
 						]
 					}
 				}
-			},
-			"DependsOn": "UserKey"
+			}
 		},
 		"InstanceRole": {
 			"Type": "AWS::IAM::Role",
@@ -892,16 +872,18 @@
 										"s3:GetBucketLocation",
 										"s3:ListBucket"
 									],
-									"Resource": "arn:aws:s3:::dammers-foundry-data"
+									"Resource": {
+										"Fn::Sub": "arn:aws:s3:::${FoundryDownloadBucket}"
+									}
 								},
 								{
 									"Effect": "Allow",
 									"Action": [
 										"s3:GetObject"
 									],
-									"Resource": [
-										"arn:aws:s3:::dammers-foundry-data/*"
-									]
+									"Resource": {
+										"Fn::Sub": "arn:aws:s3:::${FoundryDownloadBucket}/*"
+									}
 								}
 							]
 						}
