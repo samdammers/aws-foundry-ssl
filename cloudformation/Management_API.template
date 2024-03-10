@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Pushes logs, metrics and traces from AWS to Datadog."
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  S3BucketName:
+    Type: String
+  CertArn:
+    Type: String
+  Domain:
+    Type: String
+
+Resources:
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      AccessLogSetting:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format: $context.requestId
+      MethodSettings:
+        - HttpMethod: "*"
+          ResourcePath: "/*"
+          ThrottlingBurstLimit: 5
+          ThrottlingRateLimit: 1
+      FailOnWarnings: True
+      Domain:
+        DomainName: !Sub "api.foundry.${Domain}"
+        CertificateArn: !Ref CertArn
+
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Manage Foundry Env
+      Handler: manager.lambda_handler
+      MemorySize: 128
+      Runtime: python3.12
+      Timeout: 120
+      CodeUri: ../handler.zip
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3BucketName
+      Events:
+        CheckLogGroupsScheduledEvent:
+          Type: Schedule
+          Properties:
+            Description: Event rule to reset permissions every day (1am AEST)
+            Schedule: 'cron(0 15 * * ? *)'
+            Enabled: True
+        StartServer: # warning: creates a public endpoint
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Method: GET
+            Path: /start
+            TimeoutInMillis: 15000
+        StopServer: # warning: creates a public endpoint
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Method: GET
+            Path: /stop
+            TimeoutInMillis: 15000
+        ResetIP: # warning: creates a public endpoint
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Method: GET
+            Path: /ip/reset
+            TimeoutInMillis: 15000
+        AddIP: # warning: creates a public endpoint
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Method: GET
+            Path: /ip/add
+            TimeoutInMillis: 15000
+      Role: !GetAtt Role.Arn
+
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: EC2
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:DescribeInstances"
+                  - "ec2:StopInstances"
+                  - "ec2:StartInstances"
+                Resource:
+                  - "*"
+        - PolicyName: S3
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:Get*"
+                Resource:
+                  - "*"
+              - Effect: Allow
+                Action:
+                  - "s3:PutBucketPolicy"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3BucketName}"
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

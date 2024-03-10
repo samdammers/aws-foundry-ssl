@@ -1,0 +1,14 @@
+export AWS_PROFILE=<insert profile>
+export AWS_REGION=<insert region>
+export AWS_DEFAULT_REGION=${AWS_REGION}
+
+export DOMAIN=<insert domain>
+
+export EMAIL=<insert email>
+export FOUNDRY_DOWNLOAD_BUCKET=<insert lbucket>
+export FOUNDRY_DOWNLOAD_LINK="s3://${FOUNDRY_DOWNLOAD_BUCKET}/FoundryVTT-11.315.zip"
+export ADMIN_USER_PASSWORD=<inset pass>
+
+export S3_BUCKET=<insert bucket>
+
+export SSH_IPV4_ADDRESS="<insert ip>/32"
