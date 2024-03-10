@@ -260,14 +260,6 @@
 				"True"
 			]
 		},
-		"CreateWebServer": {
-			"Fn::Equals": [
-				{
-					"Ref": "WebServerBool"
-				},
-				"True"
-			]
-		},
 		"Route53WebServer": {
 			"Fn::And": [
 				{
@@ -300,22 +292,6 @@
 					"Ref": "SnapshotFrequency"
 				},
 				"Daily"
-			]
-		},
-		"WeeklyCheck": {
-			"Fn::Equals": [
-				{
-					"Ref": "SnapshotFrequency"
-				},
-				"Weekly"
-			]
-		},
-		"TakeSnapshots": {
-			"Fn::Equals": [
-				{
-					"Ref": "TakeSnapshots"
-				},
-				"True"
 			]
 		}
 	},
@@ -833,8 +809,7 @@
 						]
 					}
 				}
-			},
-			"DependsOn": "UserKey"
+			}
 		},
 		"InstanceRole": {
 			"Type": "AWS::IAM::Role",
