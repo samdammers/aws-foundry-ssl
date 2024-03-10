@@ -548,6 +548,15 @@
 							"Principal": "*",
 							"Resource": {
 								"Fn::Sub": "arn:aws:s3:::${S3BucketName}/*"
+							},
+							"Condition": {
+								"IpAddress": {
+									"aws:SourceIp": [
+										"172.31.0.0/20",
+										"172.31.32.0/20",
+										"172.31.16.0/20"
+									]
+								}
 							}
 						}
 					]
