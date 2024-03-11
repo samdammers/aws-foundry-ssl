@@ -14,8 +14,8 @@ S3_BUCKET				?= REQUIRED
 
 validate:
 	@echo "validate all the things..."
-	@cfn-lint cloudformation/Foundry_Deployment.template
-	@cfn-lint cloudformation/Management_API.template
+	@cfn-lint cloudformation/Foundry_Deployment.json
+	@cfn-lint cloudformation/Management_API.yaml
 
 clean: ##=> Clean all the things
 	$(info [+] Cleaning dist packages...)
@@ -28,35 +28,36 @@ build: clean
 
 sam-local: build
 	sam local invoke \
-		--template-file cloudformation/Management_API.template \
+		--template-file cloudformation/Management_API.yaml \
 		--event test/add_ip.json
 
-package:
+package: build
 	$(info [+] Transform forwarders SAM template and upload to S3)
 	@aws cloudformation package \
-		--template-file cloudformation/Management_API.template \
-		--output-template-file Management_API.out.template \
+		--template-file cloudformation/Management_API.yaml \
+		--output-template-file Management_API.out.yaml \
 		--s3-bucket metalisticpain-foundry-data
 
 cert:
 	$(AWSCLI) acm request-certificate --domain-name api.foundry.$(DOMAIN) --validation-method DNS
 
-deploy-api:
+deploy-api: package
 	$(AWSCLI) cloudformation deploy --no-fail-on-empty-changeset \
 		--stack-name Foundry-API \
-		--template-file Management_API.out.template \
+		--template-file Management_API.out.yaml \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameter-overrides \
 			S3BucketName=$(S3_BUCKET) \
 			CertArn=$(shell aws acm list-certificates --query "CertificateSummaryList[?DomainName=='api.foundry.$(DOMAIN)'].CertificateArn" --output text) \
-			Domain="$(DOMAIN)"
+			Domain="$(DOMAIN)" \
+			HostedZoneId=$(shell aws route53 list-hosted-zones --query "HostedZones[?Name=='$(DOMAIN).'].Id" --output text | cut -d / -f3) \
 		--tags \
 			service=foundry
 
-deploy:
+deploy-server:
 	$(AWSCLI) cloudformation deploy --no-fail-on-empty-changeset \
 		--stack-name FoundryVTT-Server \
-		--template-file cloudformation/Foundry_Deployment.template \
+		--template-file cloudformation/Foundry_Deployment.json \
 		--capabilities CAPABILITY_NAMED_IAM \
 		--parameter-overrides \
 			FoundryDownloadLink="$(FOUNDRY_DOWNLOAD_LINK)" \

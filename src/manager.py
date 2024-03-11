@@ -78,23 +78,36 @@ def ec2_actions(ec2_client, action):
 def lambda_handler(event, context):
     # pylint: disable=unused-argument
     """ Lambda Handler, handles scheduled timer events and Cloudtrail CreateLogGroup events """
-
+    print(event)
     sess = boto3.session.Session()
     detail_type = event.get("detail-type", "")
-    route_key = event.get("routeKey", "")
+    route_key = event.get("path", "")
+    if event.get("httpMethod", "") != "GET":
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Bad Request')
+        }
 
     # Scheduled event
-    if route_key == "GET /ip/reset" or detail_type == "Scheduled Event":
+    if route_key == "/ip/reset" or detail_type == "Scheduled Event":
         reset_ip_list(sess.client("s3"))
 
-    if route_key == "GET /ip/add":
-        ip = event.get("headers").get("x-forwarded-for")
+    elif route_key == "/ip/add":
+        ip = event.get("headers").get("X-Forwarded-For")
         add_ip(sess.client("s3"), ip)
 
-    if route_key == "GET /stop" or detail_type == "Scheduled Event":
+    elif route_key == "/stop" or detail_type == "Scheduled Event":
         ec2_actions(sess.client("ec2"), "STOP")
 
-    if route_key == "GET /start":
+    elif route_key == "/start":
         ec2_actions(sess.client("ec2"), "START")
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Bad Request')
+        }
 
-    return
+    return {
+        "statusCode": 200,
+        "body": json.dumps("Success")
+    }

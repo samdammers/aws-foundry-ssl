@@ -99,3 +99,8 @@ Hopefully that gives you some insight in what's going on...
 - Automatically select the `x86_64` or `arm64` image based on instance choice (even possible?)
 - Consider using SSH forwarding via SSM or EC2 Instance Connect instead of key pair stuff, would need to look into this
 - IPv6 support (AWS will soon start charging for IPv4 address assignments), in progress
+
+https://api.foundry.metalisticpain.com/start
+https://api.foundry.metalisticpain.com/stop
+https://api.foundry.metalisticpain.com/ip/add
+https://api.foundry.metalisticpain.com/ip/reset
