@@ -1,4 +1,8 @@
 /cloudformation/Foundry_Deployment__DEV.template
+<<<<<<< HEAD
 .envrc
 handler.zip
 Management_API.out.yaml
+=======
+.envrc
+>>>>>>> 4958e84 (add support for s3 location - not introduced cleanly yet)

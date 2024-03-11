@@ -32,8 +32,8 @@ You can also refer to the original repo's wiki, but the gist is:
 
 Download the `NodeJS` installer for Foundry VTT from the [Foundry VTT website](https://foundryvtt.com/). Then either:
 
-- Upload it to Google Drive, make the link publicly shared (anyone with the link can view), or
-- Upload it somewhere else it can be fetched publicly, or
+- Upload it to a manually created S3 bucket (see AWS Pre-setup below)
+- Upload it to Google Drive, make the link publicly shared (anyone with the link can view) (I had issues with this working)
 - Have a Foundry VTT Patreon download link handy, or
 - Generate a time-limited link from the Foundry VTT site; This option isn't really recommended, but if that works for you then that's cool
 
@@ -84,8 +84,22 @@ If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure 
     - The S3 bucket name for storing files
       - This name must be _globally unique_ across all S3 buckets that exist on AWS
       - If you host Foundry on eg. `foundry.mydomain.com` then `foundry-mydomain-com` is a good recommendation
+It should be pretty automated from there.
+It should be automated from there. If all goes well, the server will take around five minutes or so to become accessible.
 
-<<<<<<< HEAD
+### AWS Setup CLI
+
+**Note:** This repo currently relies on your `default` VPC, which should be set up automatically when you first create your acccount. If you have a custom VPC, it's not (yet) supported.
+
+- Copy .envrc.example to .envrc
+  - amend as required with your variables, credentials, staging bucket etc
+- execute `make deploy-server` to deploy the foundry server
+  - It should be pretty automated from there. Again, just be careful of the LetsEncrypt TLS issuance limits.
+  - If need be, set the LetsEncrypt TLS testing option to `False` in the CloudFormation setup if you are debugging a failed stack deploy. Should you run out of LetsEncrypt TLS requests, you'll need to wait one week before trying again.
+
+- execute `make cert` - This creates a certificate for your API, only required _the first time_
+- execute `make deploy-api` - This creates the Python lambda and API at api.foundry.${domain}
+
 ### API
 
 The api can control a few things
@@ -93,10 +107,7 @@ The api can control a few things
 - GET /ip/reset - Purge all current IP's barring the defaults
 - GET /start - start the EC2 Foundry server
 - GET /stop - stop the EC2 Foundry Server
-It should be pretty automated from there.
-=======
-It should be automated from there. If all goes well, the server will take around five minutes or so to become accessible.
->>>>>>> 539fbb7 (Update README.md)
+
 
 ### Optional SSH Access
 
@@ -131,6 +142,17 @@ Once it's successfully provisioned, the next time it ticks over a trigger time t
 If you _do_ need to access the server outside of the schedule, you can always start and stop it manually from the EC2 list without affecting the Resource Scheduler.
 
 If your needs are more complex, you could instead consider setting up the [AWS Instance Scheduler stack](https://aws.amazon.com/solutions/implementations/instance-scheduler-on-aws/). There's a nominal cost per month to run the services required.
+- Register a domain and have the route53 hostedzone created in the AWS Console
+
+- Create an SSH key in **EC2**, under `EC2 / Network & Security / Key Pairs`
+  - You only need to do this once, _the first time_. If you tear down and redeploy the stack you can reuse the same SSH key
+  - That said, consider rotating keys regularly as a good security practise
+  - Keep the downloaded private keypair (PEM or PPK) file safe, you'll need it for [SSH / SCP access](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-to-linux-instance.html) to the EC2 server instance
+  
+- Create an IAM User with access key (terrible I know) for CLI access
+  - consider rotating keys regularly as a good security practise
+
+- Create a staging bucket for your foundry artifact
 
 ## Security and Updates
 
@@ -162,3 +184,23 @@ Hopefully that gives you some insight in what's going on...
 Should you run into the allowed LetsEncrypt TLS requests of _5 requests per Fully Qualified Domain Name, per week_, you'll need to wait _one week_ before trying again. You can still access your instance over _non-secure_ `http`.
 
 After a week, you can re-run the issuance request manually, or if you haven't done anything major, you may just tear down the CloudFormation stack and start over.
+- Improve CloudWatch logs (?)
+- Add script to facilitate transfer between two EC2s?
+- Store LetsEncrypt PEM keys in AWS Secrets Manager and retrieve them instead of requesting new ones to work around the issuance limit (is that even possible / supported?)
+- Better ownership/permissions defaults?
+- Automatically select the `x86_64` or `arm64` image based on instance choice (even possible?)
+- Consider using SSH forwarding via SSM or EC2 Instance Connect instead of key pair stuff, would need to look into this
+- IPv6 support (AWS will soon start charging for IPv4 address assignments), in progress
+- Consider better packaging to remove public github repo cloning but instead use a packaged copy of the repo
+
+## Notes
+
+- The s3 bucket policy contains 3 private range subnets (usually the default vpc subnets)
+  - This is intentional despite the lack of use
+  - Having more than 1 item ensures the lambda code assumption (that its a list) can be true
+    - By all means PR a better code if you would like
+  - Having them there does not harm anything
+
+- This install clones the public repository to access scripts
+  - Ensure you update the repo to your own if making changes
+
