@@ -17,6 +17,17 @@ You'll need some technical expertise and basic familiarity with AWS to get this 
 
 You can also refer to the original repo's wiki, but the gist is:
 
+### Requirements
+
+* AWS CLI
+* direnv+
+* Python > 3.12
+  * Boto3
+  * [AWS SAM](https://aws.amazon.com/serverless/sam/)
+  * CFNLint
+* Docker (if running sam local)
+* GNUMake
+
 ### Foundry VTT Download
 
 Download the `NodeJS` installer for Foundry VTT from the [Foundry VTT website](https://foundryvtt.com/). Then either:
@@ -125,3 +136,36 @@ Hopefully that gives you some insight in what's going on...
 Should you run into the allowed LetsEncrypt TLS requests of _5 requests per Fully Qualified Domain Name, per week_, you'll need to wait _one week_ before trying again. You can still access your instance over _non-secure_ `http`.
 
 After a week, you can re-run the issuance request manually, or if you haven't done anything major, you may just tear down the CloudFormation stack and start over.
+
+
+## Modification Notes
+
+### AWS Setup
+
+**Note:** This repo currently relies on your `default` VPC, which should be set up automatically when you first create your acccount. If you have a custom VPC, it's not (yet) supported.
+
+- Copy .envrc.example to .envrc
+  - amend as required with your variables, credentials, staging bucket etc
+- execute `make deploy-server` to deploy the foundry server
+  - It should be pretty automated from there. Again, just be careful of the LetsEncrypt TLS issuance limits.
+  - If need be, set the LetsEncrypt TLS testing option to `False` in the CloudFormation setup if you are debugging a failed stack deploy. Should you run out of LetsEncrypt TLS requests, you'll need to wait one week before trying again.
+
+- execute `make cert` - This creates a certificate for your API, only required _the first time_
+- execute `make deploy-api` - This creates the Python lambda and API at api.foundry.${domain}
+
+### API
+
+The api can control a few things
+- GET /ip/add - Add your current IP address (as determined by X-Forwarded-For) to the S3 bucket policy
+- GET /ip/reset - Purge all current IP's barring the defaults
+- GET /start - start the EC2 Foundry server
+- GET /stop - stop the EC2 Foundry Server
+
+- The s3 bucket policy contains 3 private range subnets (usually the default vpc subnets)
+  - This is intentional despite the lack of use
+  - Having more than 1 item ensures the lambda code assumption (that its a list) can be true
+    - By all means PR a better code if you would like
+  - Having them there does not harm anything
+
+- This install clones the public repository to access scripts
+  - Ensure you update the repo to your own if making changes

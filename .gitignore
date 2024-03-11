@@ -1,1 +1,4 @@
 /cloudformation/Foundry_Deployment__DEV.template
+.envrc
+handler.zip
+Management_API.out.yaml

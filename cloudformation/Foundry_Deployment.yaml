@@ -42,6 +42,10 @@ Parameters:
     Type: String
     Description: Where to download Foundry. Can be a Patreon link, a publicly shared Google Drive link, or a custom hosted link. Timed Foundry links are possible but not recommended.
     AllowedPattern: .+
+  FoundryDownloadBucket:
+    Type: String
+    Description": If hosting artifact in a bucket, provide the bucket name here for permissions to be granted
+    AllowedPattern": (?=^.{3,63}$)(^[a-z0-9]+[a-z0-9\\-]+[a-z0-9]+$)
   AdminUserName:
     Type: String
     Description: Username for the Foundry IAM user. MUST be unique within your account.
@@ -320,6 +324,12 @@ Resources:
             Effect: Allow
             Principal: "*"
             Resource: !Sub arn:aws:s3:::${S3BucketName}/*
+            Condition:
+              IpAddress:
+                aws:SourceIp:
+                  - "172.31.0.0/20"
+                  - "172.31.32.0/20"
+                  - "172.31.16.0/20"
   AdminUser:
     Type: AWS::IAM::User
     Properties:
@@ -464,6 +474,20 @@ Resources:
                   - logs:DescribeLogStreams
                   - logs:PutRetentionPolicy
                 Resource: "*"
+        - PolicyName: S3Foundry
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: VisualEditor1
+                Effect: Allow
+                Action:
+                  - s3:ListAllMyBuckets
+                  - s3:GetBucketLocation
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - !Sub arn:aws:s3:::${FoundryDownloadBucket}
+                  - !Sub arn:aws:s3:::${FoundryDownloadBucket}/*
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:

@@ -11,7 +11,29 @@ cd /home/foundry/foundry-install
 
 rough_filesize=100000000
 
-if [[ `echo ${foundry_download_link} | cut -d '/' -f3` == 'drive.google.com' ]]; then
+if [[ `echo ${foundry_download_link} | cut -d ':' -f1` == 's3' ]]; then
+    # S3 Link
+    echo ">>> Downloading Foundry from a S3"
+
+    while (( fs_retry < 4 )); do
+        echo "Attempt $fs_retry..."
+
+        aws s3 cp ${foundry_download_link} foundry.zip
+
+        # Check if the file looks like it downloaded correctly (not a 404 page etc.)
+        filesize=$(stat -c%s "./foundry.zip")
+
+        echo "File size of foundry.zip is ${filesize} bytes."
+
+        if (( $filesize > $rough_filesize )); then
+            echo "File size seems about right! Proceeding..."
+            break
+        else
+            echo "File size looking too small. Retrying..."
+            (( fs_retry++ ))
+        fi
+    done
+elif [[ `echo ${foundry_download_link} | cut -d '/' -f3` == 'drive.google.com' ]]; then
     # Google Drive link
     echo ">>> Downloading Foundry from a Google Drive link"
 
