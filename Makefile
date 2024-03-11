@@ -3,14 +3,16 @@ SHELL = /bin/bash
 
 AWSCLI      			:= aws
 
-FOUNDRY_DOWNLOAD_LINK 	?= REQUIRED
-FOUNDRY_DOWNLOAD_BUCKET ?= REQUIRED
+FOUNDRY_DOWNLOAD_LINK  	?= REQUIRED
+FOUNDRY_DOWNLOAD_BUCKET	?= REQUIRED
 ADMIN_USER_PASSWORD		?= REQUIRED
-DOMAIN 					?= REQUIRED
-EMAIL 					?= REQUIRED
-KEYPAIR_NAME 			?= foundry-vtt-melb
+DOMAIN					?= REQUIRED
+LETS_ENCRYPT_CERT		?= False
+EMAIL					?= REQUIRED
+KEYPAIR_NAME			?= REQUIRED
 SSH_IPV4_ADDRESS		?= ""
 S3_BUCKET				?= REQUIRED
+GITHUB_REPO				?= REQUIRED
 
 validate:
 	@echo "validate all the things..."
@@ -68,7 +70,7 @@ deploy-server:
 			SubdomainName="foundry" \
 			WebServerBool=False \
 			ConfigureRoute53Bool=True \
-			UseLetsEncryptTLS=True \
+			UseLetsEncryptTLS=$(LETS_ENCRYPT_CERT) \
 			Email=$(EMAIL) \
 			InstanceKey=$(KEYPAIR_NAME) \
 			InstanceType=t4g.small \
@@ -80,6 +82,7 @@ deploy-server:
 			S3BucketName=$(S3_BUCKET) \
 			TakeSnapshots=True \
 			SnapshotFrequency=Weekly \
+			GithubRepo=$(GITHUB_REPO) \
 		--tags \
 			service=foundry \
-		--disable-rollback
+		--no-execute-changeset
