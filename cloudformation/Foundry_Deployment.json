@@ -214,6 +214,11 @@
 				"Daily",
 				"Weekly"
 			]
+		},
+		"GithubRepo": {
+			"Description": "The repo clones to retrieve scripts to install foundry. If you have forked this and made modifications, pass in your repo.",
+			"Type": "String",
+			"Default": "samdammers/aws-foundry-ssl"
 		}
 	},
 	"Conditions": {
@@ -745,7 +750,7 @@
 								"command": "sudo dnf install -y git"
 							},
 							"B_Clone_Repo": {
-								"command": "sudo git clone https://github.com/samdammers/aws-foundry-ssl.git",
+								"command": {"Fn::Sub": "sudo git clone https://github.com/${GithubRepo}.git"},
 								"cwd": "/"
 							},
 							"C_Start_Install": {

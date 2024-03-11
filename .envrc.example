@@ -1,0 +1,16 @@
+export AWS_PROFILE=
+export AWS_REGION=
+export AWS_DEFAULT_REGION=${AWS_REGION}
+
+export FOUNDRY_DOWNLOAD_BUCKET=
+export FOUNDRY_DOWNLOAD_LINK="s3://${FOUNDRY_DOWNLOAD_BUCKET}/FoundryVTT-11.315.zip"
+
+export ADMIN_USER_PASSWORD=
+export DOMAIN=
+export LETS_ENCRYPT_CERT=False
+export EMAIL=
+
+export KEYPAIR_NAME=
+export SSH_IPV4_ADDRESS=
+export S3_BUCKET=
+export GITHUB_REPO="samdammers/aws-foundry-ssl"
