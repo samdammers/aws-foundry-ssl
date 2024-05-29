@@ -4,13 +4,12 @@ This is a fork of the [**Foundry CF deploy script**](https://github.com/cat-box/
 
 **New Things**
 
-- Supports Foundry 11
+- Supports Foundry 11+
 - Amazon Linux 2023 on EC2
 - Node 20.x
-- Newer more cost efficient / performant instance type support, including ARM64
-- Experimental IPv6 support
+- IPv6 support (with default VPC)
 
-Note this is just something being done in my spare time and for fun/interest. Please keep that in mind.
+Note this is just something being done in my spare time and for fun/interest. If you have any contributions, they're welcome. Please note that I'm only focusing on AWS as the supported hosting service.
 
 ## Installation
 
@@ -62,6 +61,7 @@ This only needs to be done _once_, no matter how many times you redeploy.
 
 **Note:** This repo currently relies on your `default` VPC, which should be set up automatically when you first create your acccount. If you have a custom VPC, it's not (yet) supported.
 
+#### CLI
 - Copy .envrc.example to .envrc
   - amend as required with your variables, credentials, staging bucket etc
 - execute `make deploy-server` to deploy the foundry server
@@ -70,6 +70,21 @@ This only needs to be done _once_, no matter how many times you redeploy.
 
 - execute `make cert` - This creates a certificate for your API, only required _the first time_
 - execute `make deploy-api` - This creates the Python lambda and API at api.foundry.${domain}
+
+#### Console
+- Go to **CloudFormation** and choose to **Create a Stack** with new resources
+  - Leave `Template is Ready` selected
+  - Choose `Upload a template file`
+  - Upload the `/cloudformation/Foundry_Deployment.yaml` file from this project
+  - Fill in and check _all_ the details. I've tried to provide sensible defaults. At a minimum if you leave the defaults, the ones that need to be filled in are:
+    - Add the link for downloading Foundry
+    - Set an admin user password (for IAM)
+    - Enter your domain name and TLD eg. `mydomain.com`
+      - **Important:** Do _not_ include `www` or any other sub-domain prefix
+    - Enter your email address for LetsEncrypt TLS (https) certificate issuance
+    - Choose the SSH key pair you set up in the EC2 Key Pairs
+    - _Optional:_ Allow your IP access via SSH eg. `123.45.67.89/32`. The `/xxx` [subnet range](https://www.calculator.net/ip-subnet-calculator.html) on the end is required. For IPv4 access, use `[your IPv4 address]/32` unless you know what you're doing. For IPv6 access, use `[your IPv6 address]/128` unless you know what you're doing. You can always manually set or change this later in **EC2 Security Groups**
+    - Choose an S3 bucket name for storing files - this name must be _globally unique_ across all S3 buckets that exist on AWS. If you host Foundry on eg. `foundry.mydomain.com` then `foundry-mydomain-com` is a good recommendation
 
 ### API
 
@@ -81,7 +96,7 @@ The api can control a few things
 
 ## Security and Updates
 
-As of the `v1.1.0` release, Linux auto-patching is enabled by default. A utility script `utils/kernel_updates.sh` also exists to help you manage this if you want to disable or re-enable or run it.
+Linux auto-patching is enabled by default. A utility script `utils/kernel_updates.sh` also exists to help you manage this if you want to disable, re-enable, or run it manually.
 
 It's also recommended to SSH into the instance and run `sudo dnf upgrade` every so often to make sure your packages are up to date with the latest fixes and security releases.
 

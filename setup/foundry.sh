@@ -4,7 +4,7 @@
 # Download and install FoundryVTT
 # -------------------------------
 
-sudo mkdir -p /foundrycron /var/log/foundrycron /home/foundry/foundry-install /foundrydata /foundrydata/Data /foundrydata/Config
+mkdir -p /foundrycron /home/foundry/foundry-install /foundrydata /foundrydata/Data /foundrydata/Config
 
 # Download Foundry from Patreon link or Google Drive
 cd /home/foundry/foundry-install
@@ -38,19 +38,20 @@ elif [[ `echo ${foundry_download_link} | cut -d '/' -f3` == 'drive.google.com' ]
     echo ">>> Downloading Foundry from a Google Drive link"
 
     file_id=`echo ${foundry_download_link} | cut -d '/' -f6`
+    fs_retry=0
 
-    while (( fs_retry < 4 )); do
+    while (( $fs_retry < 4 )); do
         echo "Attempt $fs_retry..."
 
-        sudo wget --quiet --save-cookies cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=${file_id}" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p' > confirm.txt
+        wget --quiet --save-cookies cookies.txt --keep-session-cookies --no-check-certificate "https://drive.usercontent.google.com/download?export=download&id=${file_id}" -O- | sed -rn 's/.*input type="hidden" name="uuid" value="([0-9A-Za-z-]+)".*/\1\n/p' > uuid.txt
+        wget --load-cookies cookies.txt -O foundry.zip 'https://drive.usercontent.google.com/download?export=download&id='${file_id}'&authuser=0&confirm=t&uuid='$(<uuid.txt)
+        rm -rf cookies.txt uuid.txt
 
-        sudo wget --load-cookies cookies.txt -O foundry.zip 'https://docs.google.com/uc?export=download&id='${file_id}'&confirm='$(<confirm.txt) && rm -rf cookies.txt confirm.txt
-
-        # Check if the file looks like it downloaded correctly (not a 404 page etc.)
         filesize=$(stat -c%s "./foundry.zip")
 
         echo "File size of foundry.zip is ${filesize} bytes."
 
+        # Check if the file looks like it downloaded correctly (not a 404 page etc.)
         if (( $filesize > $rough_filesize )); then
             echo "File size seems about right! Proceeding..."
             break
@@ -63,10 +64,12 @@ else
     # Foundry Patreon or other hosted link
     echo ">>> Downloading Foundry from a Patreon or custom link"
 
-    while (( fs_retry < 4 )); do
+    fs_retry=0
+
+    while (( $fs_retry < 4 )); do
         echo "Attempt $fs_retry..."
 
-        sudo wget -O foundry.zip "${foundry_download_link}"
+        wget -O foundry.zip "${foundry_download_link}"
 
         filesize=$(stat -c%s "./foundry.zip")
 
@@ -93,16 +96,16 @@ unzip -u foundry.zip
 rm -f foundry.zip
 
 # Allow rwx in the Data folder only for ec2-user:foundry
-sudo chown -R foundry:foundry /home/foundry /foundrydata /foundrydata/Config
-sudo find /foundrydata -type d -exec chmod 775 {} +
-sudo find /foundrydata -type f -exec chmod 664 {} +
+chown -R foundry:foundry /home/foundry /foundrydata
+find /foundrydata -type d -exec chmod 775 {} +
+find /foundrydata -type f -exec chmod 664 {} +
 
 # Start foundry and add to boot
-sudo cp /aws-foundry-ssl/setup/foundry/foundry.service /etc/systemd/system/foundry.service
-sudo chmod 644 /etc/systemd/system/foundry.service
+cp /aws-foundry-ssl/setup/foundry/foundry.service /etc/systemd/system/foundry.service
+chmod 644 /etc/systemd/system/foundry.service
 
-sudo systemctl daemon-reload
-sudo systemctl enable --now foundry
+systemctl daemon-reload
+systemctl enable --now foundry
 
 # Configure foundry aws json file
 F_DIR='/foundrydata/Config/'
@@ -111,12 +114,12 @@ echo "Start time: $(date +%s)"
 while (( edit_retry < 45 )); do
     if [[ -d $F_DIR ]]; then
         echo "Directory found time: $(date +%s)"
-        sudo cp /aws-foundry-ssl/setup/foundry/options.json /foundrydata/Config/options.json
-        sudo cp /aws-foundry-ssl/setup/foundry/aws-s3.json /foundrydata/Config/aws-s3.json
-        sudo sed -i "s|ACCESSKEYIDHERE|${access_key_id}|g" /foundrydata/Config/aws-s3.json
-        sudo sed -i "s|SECRETACCESSKEYHERE|${secret_access_key}|g" /foundrydata/Config/aws-s3.json
-        sudo sed -i "s|REGIONHERE|${region}|g" /foundrydata/Config/aws-s3.json
-        sudo sed -i 's|"awsConfig":.*|"awsConfig": "/foundrydata/Config/aws-s3.json",|g' /foundrydata/Config/options.json
+        cp /aws-foundry-ssl/setup/foundry/options.json /foundrydata/Config/options.json
+        cp /aws-foundry-ssl/setup/foundry/aws-s3.json /foundrydata/Config/aws-s3.json
+        sed -i "s|ACCESSKEYIDHERE|${access_key_id}|g" /foundrydata/Config/aws-s3.json
+        sed -i "s|SECRETACCESSKEYHERE|${secret_access_key}|g" /foundrydata/Config/aws-s3.json
+        sed -i "s|REGIONHERE|${region}|g" /foundrydata/Config/aws-s3.json
+        sed -i 's|"awsConfig":.*|"awsConfig": "/foundrydata/Config/aws-s3.json",|g' /foundrydata/Config/options.json
 
         break
     else

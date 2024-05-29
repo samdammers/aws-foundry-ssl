@@ -3,7 +3,7 @@ Description=Run certbot once at start without a random delay
 
 [Timer]
 Unit=certbot.service
-OnActiveSec=120s
+OnActiveSec=30s
 
 [Install]
 WantedBy=timers.target
