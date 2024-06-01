@@ -95,6 +95,10 @@ fi
 unzip -u foundry.zip
 rm -f foundry.zip
 
+# Try to fix the config not having proper permissions on first run
+mkdir /foundrydata/Config
+touch /foundrydata/Config/options.json
+
 # Allow rwx in the Data folder only for ec2-user:foundry
 chown -R foundry:foundry /home/foundry /foundrydata
 find /foundrydata -type d -exec chmod 775 {} +
