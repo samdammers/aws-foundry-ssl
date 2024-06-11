@@ -100,6 +100,27 @@ Linux auto-patching is enabled by default. A utility script `utils/kernel_update
 
 It's also recommended to SSH into the instance and run `sudo dnf upgrade` every so often to make sure your packages are up to date with the latest fixes and security releases.
 
+## Running the Server on a Schedule
+
+If you don't have a need for your Foundry server to run 24/7, AWS Systems Manager lets you configure a simple schedule to start and stop your EC2 Foundry instance and save on hosting costs.
+
+1. From the AWS Console, navigate to `Systems Manager`
+2. Choose `Quick Setup`
+
+   - If you have other services previously configured in Systems Manager, choose `Create`
+
+3. Choose `Resource Scheduler`
+
+   - Enter a tag name of `Name` with a value of `FoundryServer`
+   - Choose which days and what times you want the server to be active
+   - Choose `Current Account` and `Current Region` as targets unless your needs differ
+
+4. Create the schedule
+
+Once it's successfully provisioned, the next time it ticks over a trigger time the Foundry EC2 server will be started or stopped as appropriate, saving you from paying for time that you aren't using the server.
+
+If you _do_ need to access the server outside of the schedule, you can always start and stop it manually from the EC2 list without affecting the Resource Scheduler.
+
 ## Upgrading From a Previous Installation
 
 see [Upgrading](docs/UPGRADING.md)

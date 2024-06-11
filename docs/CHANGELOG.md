@@ -2,7 +2,7 @@
 
 ### TODO
 
-- Investigate options file permissions on first install (it's set to root, not foundry?)
+- Check nginx > 1.24 being reverted when Amazon Linux 2023 installs security updates (doesn't use mainline?)
 
 ### v2.0.0 - Rework config
 
