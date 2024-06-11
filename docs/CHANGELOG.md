@@ -2,7 +2,7 @@
 
 ### TODO
 
-- Check nginx > 1.24 being reverted when Amazon Linux 2023 installs security updates (doesn't use mainline?)
+- Find a way to make LetsEncrypt logs nicer (instead of one terminal line per entry?)
 
 ### v2.0.0 - Rework config
 
@@ -12,6 +12,7 @@
 - Uplift: R53 recordset updates now happen synchronously as well so that Certbot can start a little faster
 - Fix: Node install and lint errors - thanks @samdammers!
 - Fix: Google Drive downloads
+- Fix: nginx version upgrade priority for mainline
 - Removed non-Graviton instance types
 
 ### v1.2.0 - Experimental IPv6
