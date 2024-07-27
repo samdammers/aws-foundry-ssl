@@ -4,10 +4,10 @@ This is a fork of the [**Foundry CF deploy script**](https://github.com/cat-box/
 
 **New Things**
 
-- Supports Foundry 11+
-- Amazon Linux 2023 on EC2
+- Supports Foundry 11/12+
+- Amazon Linux 2023 on Graviton EC2s
 - Node 20.x
-- IPv6 support (with default VPC)
+- [IPv6 support](docs/IPv6.md)
 
 Note this is just something being done in my spare time and for fun/interest. If you have any contributions, they're welcome. Please note that I'm only focusing on AWS as the supported hosting service.
 
@@ -32,14 +32,15 @@ You can also refer to the original repo's wiki, but the gist is:
 
 Download the `NodeJS` installer for Foundry VTT from the Foundry VTT website. Then either:
 
+<<<<<<< HEAD
 - Upload it to a manually created S3 bucket (see AWS Pre-setup below)
 - Upload it to Google Drive, make the link publicly shared (anyone with the link can view) (I had issues with this working)
+=======
+- Upload it to Google Drive, make the link publicly shared (anyone with the link can view), or
+- Upload it somewhere else it can be fetched publicly, or
+>>>>>>> 6b7995b (Update README.md)
 - Have a Foundry VTT Patreon download link handy, or
-- Upload it somewhere else it can be fetched publicly
-
-It's _not recommended_ to use the time-limited links that you can get from the Foundry VTT site, but if that works for you, it's also an option.
-
-**Note:** Foundry `11.313` at a minimum is recommended due to Electron fixing a _second_ major security flaw in the WebP decoder.
+- Generate a time-limited link from the Foundry VTT site; This option isn't really recommended, but if that works for you then that's cool
 
 ### AWS Pre-setup
 
@@ -59,7 +60,13 @@ This only needs to be done _once_, no matter how many times you redeploy.
 
 ### AWS Setup
 
+<<<<<<< HEAD
 **Note:** This repo currently relies on your `default` VPC, which should be set up automatically when you first create your acccount. If you have a custom VPC, it's not (yet) supported.
+=======
+**Note:** This script currently only supports your _default VPC_, which should have been created automatically when you first signed up for your AWS acccount
+
+If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure your default VPC.
+>>>>>>> 6b7995b (Update README.md)
 
 #### CLI
 - Copy .envrc.example to .envrc
@@ -77,14 +84,16 @@ This only needs to be done _once_, no matter how many times you redeploy.
   - Choose `Upload a template file`
   - Upload the `/cloudformation/Foundry_Deployment.yaml` file from this project
   - Fill in and check _all_ the details. I've tried to provide sensible defaults. At a minimum if you leave the defaults, the ones that need to be filled in are:
-    - Add the link for downloading Foundry
-    - Set an admin user password (for IAM)
-    - Enter your domain name and TLD eg. `mydomain.com`
+    - The link for downloading Foundry
+    - An admin user password (for IAM)
+    - Your domain name and TLD eg. `mydomain.com`
       - **Important:** Do _not_ include `www` or any other sub-domain prefix
-    - Enter your email address for LetsEncrypt TLS (https) certificate issuance
-    - Choose the SSH key pair you set up in the EC2 Key Pairs
-    - _Optional:_ Allow your IP access via SSH eg. `123.45.67.89/32`. The `/xxx` [subnet range](https://www.calculator.net/ip-subnet-calculator.html) on the end is required. For IPv4 access, use `[your IPv4 address]/32` unless you know what you're doing. For IPv6 access, use `[your IPv6 address]/128` unless you know what you're doing. You can always manually set or change this later in **EC2 Security Groups**
-    - Choose an S3 bucket name for storing files - this name must be _globally unique_ across all S3 buckets that exist on AWS. If you host Foundry on eg. `foundry.mydomain.com` then `foundry-mydomain-com` is a good recommendation
+    - Your email address for LetsEncrypt TLS (https) certificate issuance
+    - The SSH keypair you previously set up in `EC2 Key Pairs`
+    - Choose whether the S3 bucket already exists, or if it should be created
+    - The S3 bucket name for storing files
+      - This name must be _globally unique_ across all S3 buckets that exist on AWS
+      - If you host Foundry on eg. `foundry.mydomain.com` then `foundry-mydomain-com` is a good recommendation
 
 ### API
 
@@ -93,15 +102,26 @@ The api can control a few things
 - GET /ip/reset - Purge all current IP's barring the defaults
 - GET /start - start the EC2 Foundry server
 - GET /stop - stop the EC2 Foundry Server
+It should be pretty automated from there.
+
+### Optional SSH Access
+
+If you want to allow yourself access via SSH, you must specify a valid [subnet range](https://www.calculator.net/ip-subnet-calculator.html) for your [IPv4 / IPv6 address](https://www.whatismyip.com/).
+
+- For IPv4 access, use `[your IPv4 address]/32` unless you know what you're doing
+- For IPv6 access, use `[your IPv6 address]/128` unless you know what you're doing
+  - As IPv6 device addresses change quite frequently, it's likely this will need to be updated often until you know what a more permissive subnet range looks like for you; A more permissive IPv6 range might be `0123:4567:89ab::/64` for example
+
+You can always manually add or update SSH access later in `EC2 Security Groups` in the AWS Console.
 
 ## Running the Server on a Schedule
 
-If you don't have a need for your Foundry server to run 24/7, AWS Systems Manager lets you configure a simple schedule to start and stop your EC2 Foundry instance and save on hosting costs.
+If you don't have a need for your Foundry server to run 24/7, **AWS Systems Manager** lets you configure a simple schedule to start and stop your EC2 Foundry instance and save on hosting costs.
 
 1. From the AWS Console, navigate to `Systems Manager`
 2. Choose `Quick Setup`
 
-   - If you have other services previously configured in Systems Manager, choose `Create`
+   - If you already have other services configured in Systems Manager, click the `Create` button
 
 3. Choose `Resource Scheduler`
 
@@ -115,6 +135,8 @@ Once it's successfully provisioned, the next time it ticks over a trigger time t
 
 If you _do_ need to access the server outside of the schedule, you can always start and stop it manually from the EC2 list without affecting the Resource Scheduler.
 
+If your needs are more complex, you could instead consider setting up the [AWS Instance Scheduler stack](https://aws.amazon.com/solutions/implementations/instance-scheduler-on-aws/). There's a nominal cost per month to run the services required.
+
 ## Security and Updates
 
 Linux auto-patching is enabled by default. A utility script `utils/kernel_updates.sh` also exists to help you manage this if you want to disable, re-enable, or run it manually.
@@ -124,10 +146,6 @@ It's also recommended to SSH into the instance and run `sudo dnf upgrade` every 
 ## Upgrading From a Previous Installation
 
 see [Upgrading](docs/UPGRADING.md)
-
-## IPv6 Support
-
-see [IPv6](docs/IPv6.md)
 
 ## Debugging Failed CloudFormation
 
@@ -166,3 +184,9 @@ Hopefully that gives you some insight in what's going on...
 - This install clones the public repository to access scripts
   - Ensure you update the repo to your own if making changes
 
+
+### LetsEncrypt TLS Issuance Limits
+
+Should you run into the allowed LetsEncrypt TLS requests of _5 requests per FQDN per week_, you'll need to wait _one week_ before trying again. You can still access your instance over _non-secure_ `http`.
+
+After a week, you can re-run the issuance request manually, or if you haven't done anything major, you may just tear down the CloudFormation stack and start over.
