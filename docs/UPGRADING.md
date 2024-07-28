@@ -1,14 +1,14 @@
-# Upgrading from a previous installation
+# Upgrading from a previous version
 
-**Foundry 11 is a big update.**
+Minor updates should be installable in-place via the Foundry admin screen. **Major Foundry updates need some planning**.
 
-Many plugins need to be updated etc. in addition to the base hardware and software it runs on. The best thing to do if you're upgrading from Foundry 10 (or earlier) is to back up all the Foundry stuff from the existing EC2. Once you've got it all, then tear down the previous stack. I don't have experience with copying from one EC2 to another, but setting up a second stack _may_ be possible, before tearing down the first.
+From the admin interface, you can test the major upgrade ahead of time. On the version update screen, there's an option to test your add-ons for compatibility so you can find out what will work and what won't. Many add-ons will need to be updated as Foundry versions often make pretty drastic changes to their script code.
 
-You could upgrade it in-place on an older stack, but that's beyond the scope of this project.
+When upgrading major versions, make sure to back up all the Foundry data from your existing EC2 instance (such as transferring it to your computer via SCP). Once you've downloaded all your foundry world and data, make a note of all the add-ons you use as you'll very likely need to reinstall them manually. Many add-ons change repositories, dependencies, or simply aren't compatible as the project is abandoned. Once you're sure you've got everything, manually stop the EC2 server. Then, deploy a new CloudFormation stack with the new version of Foundry. After entering your license key, re-upload your world data, and then manually reinstall your plugins. Once you're happy that the new version is working as you wish, you can tear down the _old_ CloudFormation stack. If something goes awry, you can always bring up the old EC2 as long as the new one is not also running.
 
-It's recommended that you reinstall the _add-ons_ you were using manually one-by-one. Many of the add-ons from Foundry 10 have been updated to Foundry 11, and you'll want to make sure dependencies are all in place. Many add-ons have also changed ownership, and will need to be pointed to a new source address. Finally, some add-ons are not compatible with Foundry 11.
+You could also try upgrading major versions in-place on your current stack, but that's at your own initiative as it can be risky.
 
-Your worlds should be okay to bring over, and it should prompt you to upgrade them to Foundry's new internal storage format.
+Your worlds should be okay to bring over, and it should prompt you to upgrade the save format if it's changed in any way. Note that this is an irreversible process, so keep have a back-up of the old version!
 
 ### Transferring Worlds and Data
 
