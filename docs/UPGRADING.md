@@ -4,11 +4,13 @@ Minor updates should be installable in-place via the Foundry admin screen. **Maj
 
 From the admin interface, you can test the major upgrade ahead of time. On the version update screen, there's an option to test your add-ons for compatibility so you can find out what will work and what won't. Many add-ons will need to be updated as Foundry versions often make pretty drastic changes to their script code.
 
-When upgrading major versions, make sure to back up all the Foundry data from your existing EC2 instance (such as transferring it to your computer via SCP). Once you've downloaded all your foundry world and data, make a note of all the add-ons you use as you'll very likely need to reinstall them manually. Many add-ons change repositories, dependencies, or simply aren't compatible as the project is abandoned. Once you're sure you've got everything, manually stop the EC2 server. Then, deploy a new CloudFormation stack with the new version of Foundry. After entering your license key, re-upload your world data, and then manually reinstall your plugins. Once you're happy that the new version is working as you wish, you can tear down the _old_ CloudFormation stack. If something goes awry, you can always bring up the old EC2 as long as the new one is not also running.
+When upgrading major versions, make sure to back up all the Foundry data from your existing EC2 instance (such as transferring it to your computer via SCP). Once you've downloaded all your foundry worlds and user data, make a note of all the add-ons you use as you'll very likely need to reinstall them manually. Many add-ons change repositories, dependencies, or simply aren't compatible as the project is abandoned. Once you're sure you've got everything, manually stop the EC2 server. Then, deploy a new CloudFormation stack with the new version of Foundry. After entering your license key, re-upload your world data, and then manually reinstall your plugins. If something goes awry, you can always stop the new EC2 and start the old EC2.
 
-You could also try upgrading major versions in-place on your current stack, but that's at your own initiative as it can be risky.
+Your worlds should be okay to bring over, and it should prompt you to upgrade the save format if it's changed in any way. Note that this is an irreversible process, so keep have a back-up of the old version
 
-Your worlds should be okay to bring over, and it should prompt you to upgrade the save format if it's changed in any way. Note that this is an irreversible process, so keep have a back-up of the old version!
+Once you're happy that the new version is working as you wish, you can tear down the _old_ CloudFormation stack.
+
+You can do a major version upgrade in-place on your current server, but that's at your own initiative as it can be risky.
 
 ### Transferring Worlds and Data
 
