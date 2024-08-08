@@ -3,6 +3,14 @@
 ### TODO
 
 - Find a way to make LetsEncrypt logs nicer (instead of one terminal line per entry?)
+- Cost management tagging
+- Log IP updates to CloudWatch
+
+### v2.1.0 - Upgrade compatibility
+
+- Changed the security group to be based on the stack name
+- Changed the server name to be based on the stack name
+- Less restrictive IAM Admin Username
 
 ### v2.0.0 - Rework config
 

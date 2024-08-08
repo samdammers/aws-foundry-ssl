@@ -44,8 +44,8 @@ Parameters:
     AllowedPattern: .+
   AdminUserName:
     Type: String
-    Description: Username for the Foundry IAM user.
-    AllowedPattern: "[A-Za-z]+"
+    Description: Username for the Foundry IAM user. MUST be unique within your account.
+    AllowedPattern: "[A-Za-z0-9]+"
     Default: FoundryAdmin
   AdminUserPW:
     Type: String
@@ -184,7 +184,7 @@ Resources:
   FoundryServerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: Foundry VTT
+      GroupName: !Sub "${AWS::StackName}-SG"
       GroupDescription: Security rules for the FoundryVTT instance
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -422,7 +422,7 @@ Resources:
         - !Ref FoundryServerSG
       Tags:
         - Key: Name
-          Value: FoundryServer
+          Value: !Sub "${AWS::StackName}-Server"
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -x
