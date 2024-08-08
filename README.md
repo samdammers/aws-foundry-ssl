@@ -112,7 +112,7 @@ If you want to allow yourself access via SSH, you must specify a valid [subnet r
 - For IPv6 access, use `[your IPv6 address]/128` unless you know what you're doing
   - As IPv6 device addresses change quite frequently, it's likely this will need to be updated often until you know what a more permissive subnet range looks like for you; A more permissive IPv6 range might be `0123:4567:89ab::/64` for example
 
-You can always manually add or update SSH access later in `EC2 Security Groups` in the AWS Console.
+You can always manually add or update SSH access later in `EC2 / Security Groups` in the AWS Console.
 
 ## Running the Server on a Schedule
 
@@ -125,7 +125,8 @@ If you don't have a need for your Foundry server to run 24/7, **AWS Systems Mana
 
 3. Choose `Resource Scheduler`
 
-   - Enter a tag name of `Name` with a value of `FoundryServer`
+   - Enter a tag name of `Name` with a value of `[your Foundry CloudFormation stack name]-Server`
+     - Look for the server name in `EC2` Instances if you're unsure
    - Choose which days and what times you want the server to be active
    - Choose `Current Account` and `Current Region` as targets unless your needs differ
 
@@ -161,29 +162,6 @@ As long as you can get as far as the EC2 being spun up, then:
   - `sudo cat /tmp/foundry-setup.log | less` if setup scripts have finished running
 
 Hopefully that gives you some insight in what's going on...
-
-### Future Considerations
-
-- Improve CloudWatch logs (?)
-- Add script to facilitate transfer between two EC2s?
-- Store LetsEncrypt PEM keys in AWS Secrets Manager and retrieve them instead of requesting new ones to work around the issuance limit (is that even possible / supported?)
-- Better ownership/permissions defaults?
-- Automatically select the `x86_64` or `arm64` image based on instance choice (even possible?)
-- Consider using SSH forwarding via SSM or EC2 Instance Connect instead of key pair stuff, would need to look into this
-- IPv6 support (AWS will soon start charging for IPv4 address assignments), in progress
-- Consider better packaging to remove public github repo cloning but instead use a packaged copy of the repo
-
-## Notes
-
-- The s3 bucket policy contains 3 private range subnets (usually the default vpc subnets)
-  - This is intentional despite the lack of use
-  - Having more than 1 item ensures the lambda code assumption (that its a list) can be true
-    - By all means PR a better code if you would like
-  - Having them there does not harm anything
-
-- This install clones the public repository to access scripts
-  - Ensure you update the repo to your own if making changes
-
 
 ### LetsEncrypt TLS Issuance Limits
 
