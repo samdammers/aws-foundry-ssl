@@ -89,7 +89,7 @@ If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure 
     - Your domain name and TLD eg. `mydomain.com`
       - **Important:** Do _not_ include `www` or any other sub-domain prefix
     - Your email address for LetsEncrypt TLS (https) certificate issuance
-    - The SSH keypair you previously set up in `EC2 Key Pairs`
+    - The SSH keypair you previously set up in `EC2 / Key Pairs`
     - Choose whether the S3 bucket already exists, or if it should be created
     - The S3 bucket name for storing files
       - This name must be _globally unique_ across all S3 buckets that exist on AWS
@@ -125,8 +125,8 @@ If you don't have a need for your Foundry server to run 24/7, **AWS Systems Mana
 
 3. Choose `Resource Scheduler`
 
-   - Enter a tag name of `Name` with a value of `[your Foundry CloudFormation stack name]-Server`
-     - Look for the server name in `EC2` Instances if you're unsure
+   - Enter a tag name of `Name` with a value of `[your Foundry CF stack name]-Server`
+     - Look for the server name in `EC2 / Instances` if you're unsure
    - Choose which days and what times you want the server to be active
    - Choose `Current Account` and `Current Region` as targets unless your needs differ
 
