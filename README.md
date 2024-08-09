@@ -37,7 +37,7 @@ Download the `NodeJS` installer for Foundry VTT from the [Foundry VTT website](h
 - Have a Foundry VTT Patreon download link handy, or
 - Generate a time-limited link from the Foundry VTT site; This option isn't really recommended, but if that works for you then that's cool
 
-Once your server is up and running, you can remove the hosted installer as it's not used past the initial deployment.
+Once your server is up and running, if you used eg. a Google Drive link or your own hosted site, you can remove the installer as it's not used past the initial deployment.
 
 ### AWS Pre-setup
 
