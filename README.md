@@ -30,25 +30,20 @@ You can also refer to the original repo's wiki, but the gist is:
 
 ### Foundry VTT Download
 
-Download the `NodeJS` installer for Foundry VTT from the Foundry VTT website. Then either:
+Download the `NodeJS` installer for Foundry VTT from the [Foundry VTT website](https://foundryvtt.com/). Then either:
 
-<<<<<<< HEAD
-- Upload it to a manually created S3 bucket (see AWS Pre-setup below)
-- Upload it to Google Drive, make the link publicly shared (anyone with the link can view) (I had issues with this working)
-=======
 - Upload it to Google Drive, make the link publicly shared (anyone with the link can view), or
 - Upload it somewhere else it can be fetched publicly, or
->>>>>>> 6b7995b (Update README.md)
 - Have a Foundry VTT Patreon download link handy, or
 - Generate a time-limited link from the Foundry VTT site; This option isn't really recommended, but if that works for you then that's cool
+
+Once your server is up and running, you can remove the hosted installer as it's not used past the initial deployment.
 
 ### AWS Pre-setup
 
 This only needs to be done _once_, no matter how many times you redeploy.
 
-- Register a domain and have the route53 hostedzone created in the AWS Console
-
-- Create an SSH key in **EC2**, under `EC2 / Network & Security / Key Pairs`
+- Create an SSH key in **EC2**, under `EC2 / Key Pairs`
   - You only need to do this once, _the first time_. If you tear down and redeploy the stack you can reuse the same SSH key
   - That said, consider rotating keys regularly as a good security practise
   - Keep the downloaded private keypair (PEM or PPK) file safe, you'll need it for [SSH / SCP access](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-to-linux-instance.html) to the EC2 server instance
@@ -60,13 +55,9 @@ This only needs to be done _once_, no matter how many times you redeploy.
 
 ### AWS Setup
 
-<<<<<<< HEAD
-**Note:** This repo currently relies on your `default` VPC, which should be set up automatically when you first create your acccount. If you have a custom VPC, it's not (yet) supported.
-=======
 **Note:** This script currently only supports your _default VPC_, which should have been created automatically when you first signed up for your AWS acccount
 
 If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure your default VPC.
->>>>>>> 6b7995b (Update README.md)
 
 #### CLI
 - Copy .envrc.example to .envrc
