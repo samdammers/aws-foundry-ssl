@@ -44,12 +44,12 @@ Once your server is up and running, if you used eg. a Google Drive link or your 
 This only needs to be done _once_, no matter how many times you redeploy.
 
 - Create an SSH key in **EC2**, under `EC2 / Key Pairs`
-  - You only need to do this once, _the first time_. If you tear down and redeploy the stack you can reuse the same SSH key
-  - That said, consider rotating keys regularly as a good security practise
+  - You only need to do this _once_; If you tear down and redeploy the CloudFormation stack you can reuse the same SSH key
   - Keep the downloaded private keypair (PEM or PPK) file safe, you'll need it for [SSH / SCP access](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-to-linux-instance.html) to the EC2 server instance
   
 - Create an IAM User with access key (terrible I know) for CLI access
   - consider rotating keys regularly as a good security practise
+  - Consider rotating these keys regularly as a good security practise
 
 - Create a staging bucket for your foundry artifact
 
@@ -86,6 +86,7 @@ If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure 
       - This name must be _globally unique_ across all S3 buckets that exist on AWS
       - If you host Foundry on eg. `foundry.mydomain.com` then `foundry-mydomain-com` is a good recommendation
 
+<<<<<<< HEAD
 ### API
 
 The api can control a few things
@@ -94,6 +95,9 @@ The api can control a few things
 - GET /start - start the EC2 Foundry server
 - GET /stop - stop the EC2 Foundry Server
 It should be pretty automated from there.
+=======
+It should be automated from there. If all goes well, the server will take around five minutes or so to become accessible.
+>>>>>>> 539fbb7 (Update README.md)
 
 ### Optional SSH Access
 
@@ -156,6 +160,6 @@ Hopefully that gives you some insight in what's going on...
 
 ### LetsEncrypt TLS Issuance Limits
 
-Should you run into the allowed LetsEncrypt TLS requests of _5 requests per FQDN per week_, you'll need to wait _one week_ before trying again. You can still access your instance over _non-secure_ `http`.
+Should you run into the allowed LetsEncrypt TLS requests of _5 requests per Fully Qualified Domain Name, per week_, you'll need to wait _one week_ before trying again. You can still access your instance over _non-secure_ `http`.
 
 After a week, you can re-run the issuance request manually, or if you haven't done anything major, you may just tear down the CloudFormation stack and start over.
