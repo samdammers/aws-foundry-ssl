@@ -44,18 +44,17 @@ Once your server is up and running, if you used eg. a Google Drive link or your 
 This only needs to be done _once_, no matter how many times you redeploy.
 
 - Create an SSH key in **EC2**, under `EC2 / Key Pairs`
-  - You only need to do this _once_; If you tear down and redeploy the CloudFormation stack you can reuse the same SSH key
   - Keep the downloaded private keypair (PEM or PPK) file safe, you'll need it for [SSH / SCP access](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-to-linux-instance.html) to the EC2 server instance
-  
+  - If you tear down and redeploy the CloudFormation stack you can reuse the same SSH key
+
 - Create an IAM User with access key (terrible I know) for CLI access
-  - consider rotating keys regularly as a good security practise
   - Consider rotating these keys regularly as a good security practise
 
 - Create a staging bucket for your foundry artifact
 
 ### AWS Setup
 
-**Note:** This script currently only supports your _default VPC_, which should have been created automatically when you first signed up for your AWS acccount
+**Note:** This script currently only supports your _default VPC_, which should have been created automatically when you first signed up for your AWS acccount.
 
 If you want to use IPv6, see [the IPv6 docs](docs/IPv6.md) for how to configure your default VPC.
 
