@@ -2,6 +2,7 @@
 
 ### TODO
 
+- Investigate why Foundry didn't restart after a version upgrade (502 Gateway Error, fixed by restarting Foundry manually)
 - Find a way to make LetsEncrypt logs nicer (instead of one terminal line per entry?)
 - Cost management tagging
 - Log IP updates to CloudWatch
