@@ -1,5 +1,29 @@
 # Changelog
 
+### TODO
+
+- Investigate why Foundry didn't restart after a version upgrade (502 Gateway Error, fixed by restarting Foundry manually)
+- Find a way to make LetsEncrypt logs nicer (instead of one terminal line per entry?)
+- Cost management tagging
+- Log IP updates to CloudWatch
+
+### v2.1.0 - Upgrade compatibility
+
+- Changed the security group to be based on the stack name
+- Changed the server name to be based on the stack name
+- Less restrictive IAM Admin Username
+
+### v2.0.0 - Rework config
+
+- (breaking) New: Config to enable mainline nginx 1.25 to make the `http2` option a little more sane
+- (breaking) Uplift: CloudFormation config is now YAML; Some of the script stuff is much tidier
+- Uplift: Less `sudo` everywhere where it's not needed
+- Uplift: R53 recordset updates now happen synchronously as well so that Certbot can start a little faster
+- Fix: Node install and lint errors - thanks @samdammers!
+- Fix: Google Drive downloads
+- Fix: nginx version upgrade priority for mainline
+- Removed non-Graviton instance types
+
 ### v1.2.0 - Experimental IPv6
 
 - New: **Experimental** IPv6 support (as long as your subnet is configured)

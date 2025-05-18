@@ -10,8 +10,8 @@ set -x
 
 # Install foundry
 echo "===== 1. INSTALLING DEPENDENCIES ====="
-sudo dnf install https://rpm.nodesource.com/pub_20.x/nodistro/repo/nodesource-release-nodistro-1.noarch.rpm -y
-sudo dnf install nodejs -y --setopt=nodesource-nodejs.module_hotfixes=1
+curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+dnf install -y nodejs
 sudo dnf install -y openssl-devel
 sudo dnf install -y amazon-cloudwatch-agent
 
@@ -35,19 +35,19 @@ source /aws-foundry-ssl/setup/certbot.sh
 
 # Restart Foundry so aws-s3.json is fully loaded
 echo "===== 6. RESTARTING FOUNDRY ====="
-sudo systemctl restart foundry
+systemctl restart foundry
 
 # Clean up install files (Comment out during testing)
 echo "===== 7. CLEANUP AND USER PERMISSIONS ====="
-sudo usermod -a -G foundry ec2-user
-sudo chown ec2-user -R /aws-foundry-ssl
+usermod -a -G foundry ec2-user
+chown ec2-user -R /aws-foundry-ssl
 
-sudo chmod 744 /aws-foundry-ssl/utils/*.sh
-sudo chmod 700 /tmp/foundry-setup.log
-sudo rm /foundryssl/variables_tmp.sh
+chmod 744 /aws-foundry-ssl/utils/*.sh
+chmod 700 /tmp/foundry-setup.log
+rm /foundryssl/variables_tmp.sh
 
 # Uncomment only if you really care to:
-# sudo rm -r /aws-foundry-ssl
+# rm -rf /aws-foundry-ssl
 
 echo "===== 8. DONE ====="
 echo "Finished setting up Foundry!"

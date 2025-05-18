@@ -1,27 +1,29 @@
-# Upgrading from a previous installation
+# Upgrading from a previous version
 
-**Foundry 11 is a big update.**
+Minor updates should be installable in-place via the Foundry admin screen. **Major Foundry updates need some planning**.
 
-Many plugins need to be updated etc. in addition to the base hardware and software it runs on. The best thing to do if you're upgrading from Foundry 10 (or earlier) is to back up all the Foundry stuff from the existing EC2. Once you've got it all, then tear down the previous stack. I don't have experience with copying from one EC2 to another, but setting up a second stack _may_ be possible, before tearing down the first.
+First, log in to the Foundry admin interface. From the Foundry version update screen, there's an option to test your add-ons for compatibility after checking bersions, so you can find out what will work and what won't. Many add-ons usually need to be updated, so it's good to know what might work and what won't.
 
-You could upgrade it in-place on an older stack, but that's beyond the scope of this project.
+Then, make sure to back up all the Foundry data from your existing EC2 instance. The easiest way to do this is via SCP, using the SSH keypair created for the EC2.
 
-It's recommended that you reinstall the _add-ons_ you were using manually one-by-one. Many of the add-ons from Foundry 10 have been updated to Foundry 11, and you'll want to make sure dependencies are all in place. Many add-ons have also changed ownership, and will need to be pointed to a new source address. Finally, some add-ons are not compatible with Foundry 11.
+Once you've downloaded all your foundry worlds and user data, make a note of all the add-ons you use as you'll likely need to reinstall them manually. Many add-ons change repositories, dependencies, or simply aren't compatible and may no longer be maintained. Once you're sure you've got everything, manually stop the EC2 server.
 
-Your worlds should be okay to bring over, and it should prompt you to upgrade them to Foundry's new internal storage format.
+Then, deploy a new CloudFormation stack with the new version of Foundry, making sure to set a different IAM Admin Username (ie. if you previously used the default `FoundryAdmin`, it should be changed to something else for the new stack, for example by adding the major Foundry version to the name).
 
-### Transferring Worlds and Data
+Once the new stack is deployed, you'll need to:
 
-Downloading the `/foundrydata` folder from your old EC2 in anticipation of uploading it to another should suffice.
+- SSH into the server and set the permissions so you can upload via SCP with `sudo chmod -R 775 /foundrydata/Data`
+- Then, re-upload your world data to this folder via SCP
+- Once complete, run `sudo /aws-foundry-ssl/utils/fix_folder_permissions.sh`
+- Restart the Foundry server with `sudo /aws-foundry-ssl/utils/restart_foundry.sh`
+- Open up your browser and navigate to your new Foundry address
+- Enter your license key into Foundry, set your admin password, and then _manually_ reinstall your plugins
+- Start your new world, and let it migrate if needed
 
-If you're using SCP you'll need to do two things after uploading to your new instance:
+At any point if something goes awry, you can always stop the new EC2 and start the old EC2 to test.
 
-1. Set permissions back to `foundry`
-2. Restart the `foundry` service
+Once up and running, Foundry should prompt you to upgrade the save format if it's changed in any way. Note that this is an irreversible process, so keep a back-up of the old version at least for a little while!
 
-In the `/aws-foundry-ssl/utils` folder, you can run:
+When you're happy that the new server and Foundry version is working as you wish, you can tear down the _old_ CloudFormation stack. Make sure to update the scheduler if you're using it.
 
-`sudo sh ./fix_folder_permissions.sh`, and then
-`sudo sh ./restart_foundry.sh`
-
-If you get permissions errors, you may also need to run just the `./fix_folder_permissions.sh` script after adding your Foundry license, but _before_ you transfer files. By default Foundry creates more restrictive folder permissions.
+_Note: You can do a major version upgrade in-place on your current server, but that's at your own initiative as it can be risky._

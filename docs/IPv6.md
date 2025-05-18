@@ -1,8 +1,6 @@
 # IPv6 support
 
-This is still experimental as currently this script relies on your default VPC. It works at the moment, and `http/2` is being investigated as a bit of a hack once LetsEncrypt sets up the config. `http/2` is for TLS connections only (non-encrypted HTTP and upgrade redirects do _not_ and should not use `http/2`).
-
-If you want to use IPv6 but haven't configured your VPC to support it, you'll need to manually make the following changes for now:
+This currently relies on your default VPC. If you want to use IPv6 but haven't configured your VPC to support it, you'll need to manually make the following changes for now:
 
 - **VPC**: Add a new IPv6 CIDR (Amazon-provided)
 - **Subnets**
@@ -22,4 +20,4 @@ Finally, you'll need to add an `AAAA` record to your domain name in Route 53, po
 
 ### IPv6 Only
 
-IPv6 _only_ is certainly possible, however this needs further work before it's available. It's important as Amazon will begin charging for IPv4 addresses from February 2024. Likely need to add VPC selection to the CloudFormation script to make it work.
+IPv6 _only_ is certainly possible, however this needs further work before it's available. It's important as Amazon charges for IPv4 addresses.
